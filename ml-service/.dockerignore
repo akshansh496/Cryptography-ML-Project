@@ -1,0 +1,49 @@
+# ============================================================================
+# .dockerignore — CipherGuard AI ML Service
+# ============================================================================
+# Everything in this file is excluded from the Docker build context.
+# This keeps image layers small and prevents sensitive/large files from
+# accidentally entering the build.
+
+# --- Python runtime artifacts ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.pyo
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# --- Secrets ---
+.env
+*.env
+
+# --- EMBER 2018 training dataset (never in the runtime image) ---
+data/
+
+# --- Trained model artifact ---
+# NOT baked into the image. Provide via bind mount at docker run time:
+#   -v "$(pwd)/models:/app/models:ro"
+models/
+
+# --- Tests (not needed in runtime image) ---
+tests/
+
+# --- Training scripts (not part of inference service) ---
+scripts/
+
+# --- Git and IDE ---
+.git/
+.gitignore
+.DS_Store
+*.orig
+
+# --- Documentation ---
+*.pdf
+*.md
+
+# --- macOS ---
+.DS_Store
+**/.DS_Store

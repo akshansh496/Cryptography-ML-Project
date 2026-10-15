@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Model artifacts and datasets
+*.joblib
+*.pkl
+*.pickle
+ml-service/data/*
+ml-service/models/*
+!ml-service/data/.gitkeep
+!ml-service/models/.gitkeep

@@ -1,0 +1,25 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+*.joblib
+*.pkl
+*.pickle
+models/ember_rf_metadata.json
+.DS_Store
+
+# EMBER dataset contents must never be committed.
+# Keep directory placeholders so the expected layout is visible in Git.
+data/*
+!data/.gitkeep
+!data/ember2018/
+data/ember2018/**
+!data/ember2018/.gitkeep
+ember2018/
+*.tar.bz2
+ember_dataset*.tar.bz2
