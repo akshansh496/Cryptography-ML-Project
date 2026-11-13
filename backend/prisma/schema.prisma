@@ -1,0 +1,63 @@
+// CipherGuard AI - Prisma Schema
+// Database Schema per SRS Section 6 (Data Requirements)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Verdict {
+  BENIGN
+  MALICIOUS
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role      @default(USER)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  scans        Scan[]
+
+  @@map("users")
+}
+
+model Scan {
+  id               String          @id @default(uuid())
+  userId           String          @map("user_id")
+  originalFilename String          @map("original_filename")
+  sha256Hash       String          @map("sha256_hash")
+  verdict          Verdict
+  riskScore        Int             @map("risk_score")
+  explanation      Json
+  modelVersion     String          @map("model_version")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  encryptedFile    EncryptedFile?
+
+  @@index([userId])
+  @@index([sha256Hash])
+  @@map("scans")
+}
+
+model EncryptedFile {
+  id             String    @id @default(uuid())
+  scanId         String    @unique @map("scan_id")
+  storagePath    String    @map("storage_path")
+  wrappedAesKey  Bytes     @map("wrapped_aes_key")
+  iv             Bytes     @map("iv")
+  gcmTag         Bytes     @map("gcm_tag")
+  encryptedAt    DateTime  @default(now()) @map("encrypted_at")
+  scan           Scan      @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@map("encrypted_files")
+}

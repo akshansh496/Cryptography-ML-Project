@@ -1,0 +1,35 @@
+{
+  "name": "cipherguard-backend",
+  "version": "1.0.0",
+  "description": "CipherGuard AI Backend - Core API and Cryptography & Secure Storage",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate-keys": "tsx src/scripts/generate-rsa-keys.ts"
+  },
+  "keywords": [
+    "malware-analysis",
+    "cryptography",
+    "aes-256-gcm",
+    "rsa-oaep",
+    "secure-storage",
+    "envelope-encryption"
+  ],
+  "author": "CipherGuard AI Engineering Team (Member 3)",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and Secrets (CRITICAL SECURITY: Never commit private keys or secrets)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.pk8
+private_key.pem
+secrets/
+id_rsa*
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Storage Directories (CRITICAL SECURITY: Never commit encrypted blobs or temporary files)
+storage/encrypted/*
+!storage/encrypted/.gitkeep
+storage/temp/*
+!storage/temp/.gitkeep
+storage/uploads/*
+!storage/uploads/.gitkeep
+
+# Testing and coverage
+coverage/
+.nyc_output/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
