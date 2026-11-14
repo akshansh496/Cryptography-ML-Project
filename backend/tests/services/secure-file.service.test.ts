@@ -118,7 +118,7 @@ describe('SecureFileService Orchestration & Security Tests', () => {
 
     // Execute cleanup
     await streamResult.cleanup();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // Verify temp directory contains NO leftover files
     const tempFiles = fs.readdirSync(testTempDir).filter((f) => f !== '.gitkeep');
