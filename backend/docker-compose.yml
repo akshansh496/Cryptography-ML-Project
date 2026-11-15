@@ -1,0 +1,18 @@
+# Only PostgreSQL for local development.
+# Start with: docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    container_name: cipherguard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cipherguard
+      POSTGRES_PASSWORD: cipherguard
+      POSTGRES_DB: cipherguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

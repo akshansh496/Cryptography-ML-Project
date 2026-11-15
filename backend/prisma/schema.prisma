@@ -1,63 +1,78 @@
 // CipherGuard AI - Prisma Schema
 // Database Schema per SRS Section 6 (Data Requirements)
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 enum Role {
-  USER
-  ADMIN
+  user
+  admin
 }
 
 enum Verdict {
-  BENIGN
-  MALICIOUS
+  benign
+  malicious
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  role         Role      @default(USER)
-  createdAt    DateTime  @default(now()) @map("created_at")
+  id           String         @id @default(uuid()) @db.Uuid
+  email        String         @unique
+  passwordHash String         @map("password_hash")
+  role         Role           @default(user)
+  createdAt    DateTime       @default(now()) @map("created_at")
   scans        Scan[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
 
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
 model Scan {
-  id               String          @id @default(uuid())
-  userId           String          @map("user_id")
-  originalFilename String          @map("original_filename")
-  sha256Hash       String          @map("sha256_hash")
+  id               String         @id @default(uuid()) @db.Uuid
+  userId           String         @map("user_id") @db.Uuid
+  originalFilename String         @map("original_filename")
+  fileSize         Int            @map("file_size")
+  sha256Hash       String         @map("sha256_hash")
   verdict          Verdict
-  riskScore        Int             @map("risk_score")
+  probability      Float
+  riskScore        Int            @map("risk_score")
   explanation      Json
-  modelVersion     String          @map("model_version")
-  createdAt        DateTime        @default(now()) @map("created_at")
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  modelVersion     String         @map("model_version")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   encryptedFile    EncryptedFile?
 
-  @@index([userId])
-  @@index([sha256Hash])
+  @@index([userId, createdAt])
+  @@index([userId, sha256Hash])
   @@map("scans")
 }
 
+// wrappedAesKey / iv / gcmTag are filled by Member 3's crypto module.
 model EncryptedFile {
-  id             String    @id @default(uuid())
-  scanId         String    @unique @map("scan_id")
-  storagePath    String    @map("storage_path")
-  wrappedAesKey  Bytes     @map("wrapped_aes_key")
-  iv             Bytes     @map("iv")
-  gcmTag         Bytes     @map("gcm_tag")
-  encryptedAt    DateTime  @default(now()) @map("encrypted_at")
-  scan           Scan      @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  id             String   @id @default(uuid()) @db.Uuid
+  scanId         String   @unique @map("scan_id") @db.Uuid
+  storagePath    String   @map("storage_path")
+  wrappedAesKey  Bytes?   @map("wrapped_aes_key")
+  iv             Bytes?
+  gcmTag         Bytes?   @map("gcm_tag")
+  encryptedAt    DateTime @default(now()) @map("encrypted_at")
+  scan           Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
 
   @@map("encrypted_files")
 }
