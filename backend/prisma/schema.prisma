@@ -1,3 +1,6 @@
+// CipherGuard AI - Prisma Schema
+// Database Schema per SRS Section 6 (Data Requirements)
+
 generator client {
   provider = "prisma-client-js"
 }
