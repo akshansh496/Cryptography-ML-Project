@@ -2,7 +2,7 @@ import { Router, Response } from "express";
 import crypto from "crypto";
 import { z } from "zod";
 import { prisma } from "../db";
-import { config, riskLevel } from "../config";
+import { riskLevel } from "../config";
 import { AppError } from "../utils/errors";
 import { sha256Hex } from "../utils/hash";
 import { validateFilename, isValidPE, uuidSchema } from "../utils/validators";
