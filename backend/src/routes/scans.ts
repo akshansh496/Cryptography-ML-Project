@@ -65,7 +65,7 @@ router.post(
 
     // 4. Store file, then save DB records. Clean up the blob if DB fails.
     const scanId = crypto.randomUUID();
-    const stored = await storeFile(scanId, file.buffer);
+    const stored = await storeFile(scanId, file.buffer, sha256);
 
     try {
       const scan = await prisma.scan.create({
@@ -150,12 +150,15 @@ router.get(
 
     let plain: Buffer;
     try {
-      plain = await loadFile({
-        storagePath: scan.encryptedFile.storagePath,
-        wrappedAesKey: scan.encryptedFile.wrappedAesKey ?? undefined,
-        iv: scan.encryptedFile.iv ?? undefined,
-        gcmTag: scan.encryptedFile.gcmTag ?? undefined,
-      });
+      plain = await loadFile(
+        {
+          storagePath: scan.encryptedFile.storagePath,
+          wrappedAesKey: scan.encryptedFile.wrappedAesKey ?? undefined,
+          iv: scan.encryptedFile.iv ?? undefined,
+          gcmTag: scan.encryptedFile.gcmTag ?? undefined,
+        },
+        scan.sha256Hash
+      );
     } catch (err) {
       console.error("SECURITY: could not load/decrypt file", { scanId: scan.id, userId: scan.userId });
       throw new AppError(409, "File integrity check failed");

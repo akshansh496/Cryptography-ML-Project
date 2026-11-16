@@ -278,7 +278,7 @@ describe('Member 3: Cryptography & Secure Storage - 18 Mandatory Tests', () => {
     }
 
     await streamResult.cleanup();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     const tempFiles = fs.readdirSync(testTempDir).filter((f) => f !== '.gitkeep');
     expect(tempFiles).toHaveLength(0);

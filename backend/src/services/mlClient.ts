@@ -7,6 +7,8 @@ export interface TopFeature {
   name: string;
   description: string;
   contribution: number;
+  feature?: string;
+  importance?: number;
 }
 
 export interface MlResult {
@@ -17,7 +19,7 @@ export interface MlResult {
   modelVersion: string;
 }
 
-// ---------- MOCK (used until Member 1's service is ready) ----------
+// ---------- MOCK (used when ML_MODE=mock) ----------
 function mockAnalyze(buffer: Buffer): MlResult {
   const hash = sha256Hex(buffer);
   const riskScore = parseInt(hash.slice(0, 4), 16) % 101; // deterministic 0..100
@@ -27,11 +29,11 @@ function mockAnalyze(buffer: Buffer): MlResult {
     riskScore,
     modelVersion: "mock-v0",
     topFeatures: [
-      { name: "section_entropy_text", description: "Entropy of the executable code section", contribution: 0.31 },
-      { name: "imports_suspicious_api", description: "Use of suspicious imported APIs", contribution: 0.22 },
-      { name: "header_timestamp", description: "Unusual compile timestamp in the PE header", contribution: 0.14 },
-      { name: "byte_histogram_zeros", description: "Unusual share of zero bytes in the file", contribution: 0.09 },
-      { name: "file_size", description: "File size compared with typical programs", contribution: 0.05 },
+      { name: "section_entropy_text", feature: "section_entropy_text", description: "Entropy of the executable code section", contribution: 0.31, importance: 0.31 },
+      { name: "imports_suspicious_api", feature: "imports_suspicious_api", description: "Use of suspicious imported APIs", contribution: 0.22, importance: 0.22 },
+      { name: "header_timestamp", feature: "header_timestamp", description: "Unusual compile timestamp in the PE header", contribution: 0.14, importance: 0.14 },
+      { name: "byte_histogram_zeros", feature: "byte_histogram_zeros", description: "Unusual share of zero bytes in the file", contribution: 0.09, importance: 0.09 },
+      { name: "file_size", feature: "file_size", description: "File size compared with typical programs", contribution: 0.05, importance: 0.05 },
     ],
   };
 }
@@ -54,6 +56,10 @@ async function realAnalyze(buffer: Buffer, filename: string): Promise<MlResult> 
   }
 
   if (!response.ok) {
+    if (response.status === 400) {
+      const errData: any = await response.json().catch(() => ({}));
+      throw new AppError(400, errData.detail || "File is not a valid PE executable");
+    }
     throw new AppError(503, "Analysis service temporarily unavailable, please retry");
   }
 
@@ -69,7 +75,15 @@ async function realAnalyze(buffer: Buffer, filename: string): Promise<MlResult> 
     verdict: data.verdict,
     probability: Number(data.probability ?? data.risk_score / 100),
     riskScore: Math.max(0, Math.min(100, Math.round(data.risk_score))),
-    topFeatures: Array.isArray(data.top_features) ? data.top_features : [],
+    topFeatures: Array.isArray(data.top_features)
+      ? data.top_features.map((item: any) => ({
+          name: item.name ?? item.feature ?? "unknown_feature",
+          feature: item.feature ?? item.name,
+          contribution: Number(item.contribution ?? item.importance ?? 0),
+          importance: Number(item.importance ?? item.contribution ?? 0),
+          description: item.description ?? "",
+        }))
+      : [],
     modelVersion: String(data.model_version ?? "rf-ember2018"),
   };
 }
