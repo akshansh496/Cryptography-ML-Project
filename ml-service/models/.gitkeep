@@ -1,0 +1,2 @@
+# Directory for the offline-trained Joblib artifact (models/ember_rf.joblib).
+# Trained weights are not committed; see README.md for the training workflow.
